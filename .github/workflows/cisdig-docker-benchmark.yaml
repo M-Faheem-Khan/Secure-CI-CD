@@ -1,2 +1,25 @@
-- name: Sysdig CIS Dockerfile Benchmark
-  uses: sysdiglabs/benchmark-dockerfile@v1.0.0
+name: Sysdig Benchmark Dockerfile
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  dockerbench:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+     
+      - name: Sysdig CIS Dockerfile Benchmark
+        id: cis_dockerfile_benchmark
+        uses: sysdiglabs/benchmark-dockerfile@v1.0.0
+
+      - name: Post Run
+        run: |
+          echo ${{ toJSON(steps.cis_dockerfile_benchmark.outputs.violation_report) }} > /tmp/report.json
+      - name: Archive results
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-bench
+          path: /tmp/report.json
